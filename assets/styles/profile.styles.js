@@ -169,6 +169,41 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
+  //nuevos estilos
+    infoCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: 8,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    marginTop: 16
+  },
+  infoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12
+  },
+  infoLabel: {
+    fontWeight: 'bold',
+    color: COLORS.textSecondary
+  },
+  infoValue: {
+    marginBottom: 8
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  errorText: {
+    marginTop: 20,
+    color: COLORS.error,
+    textAlign: 'center'
+  },
+  //fin nuevos estilos
 });
 
 export default styles;

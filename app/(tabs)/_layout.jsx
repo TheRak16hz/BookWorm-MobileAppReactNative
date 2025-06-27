@@ -26,9 +26,19 @@ export default function TabLayout() {
           height: 60 + insets.bottom,
         },
       }}
-    >
+    > 
         <Tabs.Screen
           name='index'
+          options={{
+            title: 'profile',
+            tabBarIcon: ({color,size}) => (
+            <Ionicons name='person-outline' size={size} color={color}/>
+            ),
+          }}
+        
+        />
+        <Tabs.Screen
+          name='home'
           options={{
             title: 'home',
             tabBarIcon: ({color,size}) => (
@@ -47,16 +57,7 @@ export default function TabLayout() {
           }}
         
         />
-        <Tabs.Screen
-          name='profile'
-          options={{
-            title: 'profile',
-            tabBarIcon: ({color,size}) => (
-            <Ionicons name='person-outline' size={size} color={color}/>
-            ),
-          }}
         
-        />
     </Tabs>
   )
 }

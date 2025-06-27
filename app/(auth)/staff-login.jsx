@@ -3,17 +3,18 @@ import styles from "../../assets/styles/login.styles";
 import { useState } from 'react';
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from '../../constants/colors';
-import { Link } from "expo-router";
+import { router } from "expo-router";
 import { useAuthStore } from '../../store/authStore.js';
+import { Link } from "expo-router";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
+export default function StaffLogin() {
+  const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { isLoading, login, isCheckingAuth } = useAuthStore();
+  const { isLoading, staffLogin, isCheckingAuth } = useAuthStore();
 
   const handleLogin = async () => {
-    const result = await login(email, password);
+    const result = await staffLogin(correo, password);
     if (!result.success) {
       Alert.alert("Error", result.error);
     }
@@ -22,106 +23,73 @@ export default function Login() {
   if (isCheckingAuth) return null;
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? 'padding' : 'height'}>
       <View style={styles.container}>
-        {/* Illustration */}
         <View style={styles.topIllustration}>
           <Image
             source={require("../../assets/images/ilustration1.png")}
-            style={[styles.illustrationImage, { height: 250 }]}  // <== reducimos el tamaño
+            style={styles.illustrationImage}
             resizeMode="contain"
           />
         </View>
 
         <View style={styles.card}>
           <View style={styles.formContainer}>
-            {/* email */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>Correo</Text>
               <View style={styles.inputContainer}>
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={COLORS.primary}
-                  style={styles.inputIcon}
-                />
+                <Ionicons name="mail-outline" size={20} color={COLORS.primary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your email"
                   placeholderTextColor={COLORS.placeholderText}
-                  value={email}
-                  onChangeText={setEmail}
+                  value={correo}
+                  onChangeText={setCorreo}
                   keyboardType="email-address"
                   autoCapitalize="none"
                 />
               </View>
             </View>
 
-            {/* password */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Password</Text>
               <View style={styles.inputContainer}>
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={COLORS.inputIcon}
-                  style={styles.inputIcon}
-                />
+                <Ionicons name="lock-closed-outline" size={20} color={COLORS.inputIcon} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your password"
+                  placeholder="enter your password"
                   placeholderTextColor={COLORS.placeholderText}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                 />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
-                >
-                  <Ionicons
-                    name={showPassword ? "eye-outline" : "eye-off-outline"}
-                    size={20}
-                    color={COLORS.primary}
-                  />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                  <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color={COLORS.primary} />
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* login button */}
             <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Login</Text>
+                <Text style={styles.buttonText}>Login as Staff</Text>
               )}
             </TouchableOpacity>
 
-            {/* footer links */}
-            <View style={[styles.footer, { marginTop: 20 }]}>
-              <Text style={styles.footerText}>Don't have an account?</Text>
-              <Link href="/signup" asChild>
+            {/* link al login de estudiante */}
+            <View style={styles.footer}>
+            <Text style={styles.footerText}>Are you a student?</Text>
+            <Link href="/login" asChild>
                 <TouchableOpacity>
-                  <Text style={styles.link}>Sign Up</Text>
+                <Text style={styles.link}>Login as student</Text>
                 </TouchableOpacity>
-              </Link>
+            </Link>
             </View>
-
-            <View style={[styles.footer, { marginTop: 10, marginBottom: 20 }]}>
-              <Text style={styles.footerText}>Are you staff?</Text>
-              <Link href="/staff-login" asChild>
-                <TouchableOpacity>
-                  <Text style={styles.link}>Login as staff</Text>
-                </TouchableOpacity>
-              </Link>
-            </View>
-
+            
           </View>
         </View>
       </View>
     </KeyboardAvoidingView>
-  )
+  );
 }

@@ -7,24 +7,23 @@ import ProfileHeader from '../../components/ProfileHeader';
 import LogoutButton from '../../components/LogoutButton';
 import COLORS from '../../constants/colors';
 
-export default function Profile() {
-  const [student, setStudent] = useState(null);
+export default function StaffProfile() {
+  const [staff, setStaff] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const { token, user } = useAuthStore();
 
-  const fetchStudentData = async () => {
+  const fetchStaffData = async () => {
     try {
       setIsLoading(true);
 
-      /*
-      if (!user?.cedula) {
+      /*if (!user?.cedula) {
         throw new Error("No se encontró la cédula del usuario logueado");
       }*/
 
-      const url = `${API_URL}/students/cedula/${user.cedula}`;
-      console.log("Fetching student data from:", url);
+      const url = `${API_URL}/staff/cedula/${user.cedula}`;
+      console.log("Fetching staff data from:", url);
 
       const response = await fetch(url, {
         headers: {
@@ -40,12 +39,12 @@ export default function Profile() {
       }
 
       const data = JSON.parse(text);
-      setStudent(data);
+      setStaff(data);
 
     } catch (error) {
-      console.error("Error fetching student data:", error);
+      console.error("Error fetching staff data:", error);
       Alert.alert("Error", error.message || "No se pudo cargar la información del perfil");
-      setStudent(null);
+      setStaff(null);
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -53,12 +52,12 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    fetchStudentData();
+    fetchStaffData();
   }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await fetchStudentData();
+    await fetchStaffData();
   };
 
   if (isLoading && !refreshing) {
@@ -69,9 +68,9 @@ export default function Profile() {
     );
   }
 
-  if (!student) {
+  if (!staff) {
     return (
-      <ScrollView 
+      <ScrollView
         style={styles.container}
         refreshControl={
           <RefreshControl
@@ -84,13 +83,13 @@ export default function Profile() {
       >
         <ProfileHeader />
         <LogoutButton />
-        <Text style={styles.errorText}>No se encontró información del estudiante</Text>
+        <Text style={styles.errorText}>No se encontró información del personal</Text>
       </ScrollView>
     );
   }
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={{ padding: 16 }}
       refreshControl={
@@ -106,37 +105,22 @@ export default function Profile() {
       <LogoutButton />
 
       <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Información del Estudiante</Text>
+        <Text style={styles.infoTitle}>Información del Personal</Text>
 
         <Text style={styles.infoLabel}>Nombre:</Text>
-        <Text style={styles.infoValue}>{student.nombre} {student.apellido}</Text>
+        <Text style={styles.infoValue}>{staff.nombre} {staff.apellido}</Text>
 
         <Text style={styles.infoLabel}>Cédula:</Text>
-        <Text style={styles.infoValue}>{student.cedula}</Text>
+        <Text style={styles.infoValue}>{staff.cedula}</Text>
 
         <Text style={styles.infoLabel}>Email:</Text>
-        <Text style={styles.infoValue}>{student.email}</Text>
+        <Text style={styles.infoValue}>{staff.correo}</Text>
 
-        <Text style={styles.infoLabel}>Sección:</Text>
-        <Text style={styles.infoValue}>{student.seccion}</Text>
+        <Text style={styles.infoLabel}>Rol:</Text>
+        <Text style={styles.infoValue}>{staff.role}</Text>
 
-        <Text style={styles.infoLabel}>Fecha de nacimiento:</Text>
-        <Text style={styles.infoValue}>{new Date(student.fecha_nacimiento).toLocaleDateString()}</Text>
-
-        <Text style={styles.infoLabel}>Número de teléfono:</Text>
-        <Text style={styles.infoValue}>{student.numero_telefono}</Text>
-
-        <Text style={styles.infoLabel}>Dirección:</Text>
-        <Text style={styles.infoValue}>{student.direccion}</Text>
-
-        <Text style={styles.infoLabel}>Sexo:</Text>
-        <Text style={styles.infoValue}>{student.sexo}</Text>
-
-        <Text style={styles.infoLabel}>Último año cursado:</Text>
-        <Text style={styles.infoValue}>{student.ultimo_año_cursado}</Text>
-
-        <Text style={styles.infoLabel}>Status:</Text>
-        <Text style={styles.infoValue}>{student.status ? "Activo" : "Inactivo"}</Text>
+        <Text style={styles.infoLabel}>Activo:</Text>
+        <Text style={styles.infoValue}>{staff.status ? "Sí" : "No"}</Text>
       </View>
     </ScrollView>
   );

@@ -26,16 +26,22 @@ export default function RootLayout() {
     checkAuth();
   })
 
-  //handle the navigation based on the auth state
   useEffect(() => {
     const inAuthScreen = segments[0] === "(auth)";
     const isSignedIn = user && token;
 
-    if (!isSignedIn && !inAuthScreen) router.replace("/(auth)");
-    else if (isSignedIn && inAuthScreen) router.replace("/(tabs)");
-
-
-  },[user,token,segments])
+    if (!isSignedIn && !inAuthScreen) {
+      router.replace("/(auth)");
+    } 
+    else if (isSignedIn && inAuthScreen) {
+      // Redirige según el role
+      if (user.role === "admin" || user.role === "profesor") {
+        router.replace("/(tabs-staff)");
+      } else {
+        router.replace("/(tabs)");
+      }
+    }
+  }, [user, token, segments]);
 
   return (
 
