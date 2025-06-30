@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
@@ -26,22 +27,25 @@ export default function PostsScreen() {
   const [image, setImage] = useState(null);
   const [imageBase64, setImageBase64] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // ← NUEVO
 
   const router = useRouter();
   const { token } = useAuthStore();
+
+  const allowedTypes = ["jpeg", "jpg", "png", "webp"];
 
   const pickImage = async () => {
     try {
       if (Platform.OS !== 'web') {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('Permission denied', 'We need permission to access your gallery');
+          Alert.alert('Permiso denegado', 'Se necesita acceso a tu galería.');
           return;
         }
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.3,
@@ -49,43 +53,48 @@ export default function PostsScreen() {
       });
 
       if (!result.canceled) {
-        //console.log("result is here: ", result);
-        setImage(result.assets[0].uri);
+        const selected = result.assets[0];
+        const uri = selected.uri;
+        const fileType = uri.split('.').pop().toLowerCase();
 
-        //if base64 is provided, use it
-        if(result.assets[0].base64) {
-          setImageBase64(result.assets[0].base64);
+        console.log("Tipo de archivo seleccionado:", fileType);
+
+        if (!allowedTypes.includes(fileType)) {
+          Alert.alert("Formato inválido", "Solo se admiten imágenes JPEG, JPG, PNG o WEBP");
+          return;
+        }
+
+        setImage(uri);
+
+        if (selected.base64) {
+          setImageBase64(selected.base64);
         } else {
-          //otherwise, convert to base64
-          const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+          const base64 = await FileSystem.readAsStringAsync(uri, {
             encoding: FileSystem.EncodingType.Base64,
           });
-
           setImageBase64(base64);
         }
       }
     } catch (error) {
-      console.error("Error picking image:", error);
-      Alert.alert("Error", "There was a problem selecting your image");
+      console.error("Error al seleccionar imagen:", error);
+      Alert.alert("Error", "Hubo un problema al seleccionar la imagen");
     }
   };
 
   const handleSubmit = async () => {
-    if (!title || !description || !imageBase64) {
-      Alert.alert("Missing Fields", "Please fill in all fields and select an image");
+    if (!title || !description || !imageBase64 || !image) {
+      Alert.alert("Campos incompletos", "Por favor completa todos los campos");
       return;
     }
 
     try {
       setLoading(true);
 
-      const uriParts = image.split(".");
-      const fileType = uriParts[uriParts.length - 1];
-      const imageType = fileType ? `image/${fileType.toLowerCase()}` : 'image/jpeg';
-
+      const fileType = image.split('.').pop().toLowerCase();
+      const imageType = allowedTypes.includes(fileType) ? `image/${fileType}` : 'image/jpeg';
       const imageDataUrl = `data:${imageType};base64,${imageBase64}`;
 
-      console.log("Token actual:", token);
+      console.log("Enviando imagen con tipo:", imageType);
 
       const response = await fetch(`${API_URL}/posts`, {
         method: "POST",
@@ -101,21 +110,48 @@ export default function PostsScreen() {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Something went wrong");
+      if (!response.ok) throw new Error(data.message || "Ocurrió un error");
 
-      Alert.alert("Success", "Post created successfully!");
+      Alert.alert("Éxito", "¡Post creado correctamente!");
       setTitle("");
       setDescription("");
       setImage(null);
       setImageBase64(null);
-      router.push("/");
+      router.push({ pathname: "/ver-posts", params: { refresh: 'true' } });
 
     } catch (error) {
-      console.error("Error creating post:", error);
-      Alert.alert("Error", error.message || "Something went wrong");
+      console.error("Error al crear post:", error);
+
+      if (
+        error.message.includes("PayloadTooLarge") ||
+        error.message.includes("Already read") ||
+        error.message.includes("Unexpected character")
+      ) {
+        setImage(null);
+        setImageBase64(null);
+        Alert.alert(
+          "Error con la imagen",
+          "Hubo un problema al subir la imagen. Intenta seleccionar otra más liviana o vuelve a intentarlo."
+        );
+      } else {
+        Alert.alert("Error", error.message || "No se pudo crear el post");
+      }
+
     } finally {
       setLoading(false);
     }
+  };
+
+  // ⬇️ Función de refresco manual
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTitle("");
+    setDescription("");
+    setImage(null);
+    setImageBase64(null);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 500); // espera 0.5 seg
   };
 
   return (
@@ -123,15 +159,21 @@ export default function PostsScreen() {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.container} style={styles.scrollViewStyle}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        style={styles.scrollViewStyle}
+        refreshControl={ // ← NUEVO
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.card}>
-          <Text style={styles.title}>Create a Post</Text>
+          <Text style={styles.title}>Crear una publicación</Text>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Title</Text>
+            <Text style={styles.label}>Título</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter post title"
+              placeholder="Escribe el título"
               placeholderTextColor={COLORS.placeholderText}
               value={title}
               onChangeText={setTitle}
@@ -139,10 +181,10 @@ export default function PostsScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Description</Text>
+            <Text style={styles.label}>Descripción</Text>
             <TextInput
               style={styles.textArea}
-              placeholder="Enter description..."
+              placeholder="Escribe la descripción..."
               placeholderTextColor={COLORS.placeholderText}
               value={description}
               onChangeText={setDescription}
@@ -151,14 +193,14 @@ export default function PostsScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Image</Text>
+            <Text style={styles.label}>Imagen</Text>
             <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
               {image ? (
                 <Image source={{ uri: image }} style={styles.previewImage} />
               ) : (
                 <View style={styles.placeholderContainer}>
                   <Ionicons name='image-outline' size={40} color={COLORS.textSecondary} />
-                  <Text style={styles.placeholderText}>Tap to select image</Text>
+                  <Text style={styles.placeholderText}>Toca para seleccionar una imagen</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -170,7 +212,7 @@ export default function PostsScreen() {
             ) : (
               <>
                 <Ionicons name="cloud-upload-outline" size={20} color={COLORS.white} style={styles.buttonIcon} />
-                <Text style={styles.buttonText}>Submit</Text>
+                <Text style={styles.buttonText}>Publicar</Text>
               </>
             )}
           </TouchableOpacity>

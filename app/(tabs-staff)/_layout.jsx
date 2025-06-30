@@ -63,6 +63,12 @@ export default function StaffTabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="edit-post"
+        options={{
+          href: null, // evita que se muestre en la barra de navegación
+        }}
+      />
     </Tabs>
   )
 }

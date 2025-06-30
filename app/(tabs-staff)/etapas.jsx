@@ -6,12 +6,23 @@ import styles from '../../assets/styles/etapasPosts.styles';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '../../constants/colors';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
+
+
 
 export default function EtapasScreen() {
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const [etapas, setEtapas] = useState([]);
   const [profesores, setProfesores] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  //constantes para calendario
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+
+  const isAdmin = user?.role === 'admin';
 
   const [form, setForm] = useState({
     etapa: 'etapa 1',
@@ -78,11 +89,26 @@ export default function EtapasScreen() {
     return;
   }
 
+  const fechaInicio = parseDate(form.fecha_inicio);
+  const fechaFin = parseDate(form.fecha_fin);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0); // Elimina hora para comparar solo fechas
+
+  if (fechaInicio < hoy || fechaFin < hoy) {
+    Alert.alert('Error', 'Las fechas deben ser posteriores a la fecha actual');
+    return;
+  }
+
+  if (fechaFin < fechaInicio) {
+    Alert.alert('Error', 'La fecha de fin no puede ser menor que la de inicio');
+    return;
+  }
+
   try {
     const body = {
       etapa: form.etapa,
-      fecha_inicio: parseDate(form.fecha_inicio).toISOString(),
-      fecha_fin: parseDate(form.fecha_fin).toISOString(),
+      fecha_inicio: fechaInicio.toISOString(),
+      fecha_fin: fechaFin.toISOString(),
       jurado: form.jurado
     };
 
@@ -106,8 +132,6 @@ export default function EtapasScreen() {
       fetchEtapas();
     } else {
       const text = await res.text();
-      console.log('Respuesta cruda del servidor:', text);
-
       let message = 'Respuesta inesperada del servidor';
 
       try {
@@ -197,59 +221,83 @@ export default function EtapasScreen() {
         />
       }
     >
-      <View style={styles.card}>
-        <Text style={styles.title}>CREAR / ACTUALIZAR ETAPA</Text>
+      {isAdmin && (
+        <View style={styles.card}>
+          <Text style={styles.title}>CREAR / ACTUALIZAR ETAPA</Text>
 
-        <Picker
-          selectedValue={form.etapa}
-          onValueChange={(itemValue) =>
-            setForm(prev => ({ ...prev, etapa: itemValue }))
-          }
-          style={styles.picker}
-        >
-          <Picker.Item label="Etapa 1" value="etapa 1" />
-          <Picker.Item label="Etapa 2" value="etapa 2" />
-          <Picker.Item label="Etapa 3" value="etapa 3" />
-        </Picker>
-
-        <TextInput
-          placeholder="Fecha inicio (DD-MM-YYYY)"
-          style={styles.input}
-          value={form.fecha_inicio}
-          onChangeText={text => setForm(prev => ({ ...prev, fecha_inicio: text }))}
-        />
-
-        <TextInput
-          placeholder="Fecha fin (DD-MM-YYYY)"
-          style={styles.input}
-          value={form.fecha_fin}
-          onChangeText={text => setForm(prev => ({ ...prev, fecha_fin: text }))}
-        />
-
-        <Text style={styles.label}>Selecciona jurado (máx. 3):</Text>
-        {profesores.map(prof => (
-          <TouchableOpacity
-            key={prof._id}
-            style={[
-              styles.juradoItem,
-              form.jurado.includes(prof._id) && styles.juradoItemSelected
-            ]}
-            onPress={() => toggleJurado(prof._id)}
+          <Picker
+            selectedValue={form.etapa}
+            onValueChange={(itemValue) =>
+              setForm(prev => ({ ...prev, etapa: itemValue }))
+            }
+            style={styles.picker}
           >
-            <Text style={{ color: form.jurado.includes(prof._id) ? COLORS.white : COLORS.textPrimary }}>
-              {prof.nombre} {prof.apellido}
+            <Picker.Item label="Etapa 1" value="etapa 1" />
+            <Picker.Item label="Etapa 2" value="etapa 2" />
+            <Picker.Item label="Etapa 3" value="etapa 3" />
+          </Picker>
+
+          <TextInput
+            placeholder="Fecha inicio (DD-MM-YYYY)"
+            style={styles.input}
+            value={form.fecha_inicio}
+            onChangeText={text => setForm(prev => ({ ...prev, fecha_inicio: text }))}
+          />
+
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            style={styles.input}
+          >
+            <Text style={{ color: form.fecha_fin ? COLORS.textPrimary : '#aaa' }}>
+              {form.fecha_fin || 'Seleccionar fecha fin'}
             </Text>
           </TouchableOpacity>
-        ))}
 
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: COLORS.primary }]}
-          onPress={handleCreate}
-        >
-          <Ionicons name="add-outline" size={20} color={COLORS.white} />
-          <Text style={styles.buttonText}>Guardar etapa</Text>
-        </TouchableOpacity>
-      </View>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate || new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={(event, date) => {
+                if (event.type === 'set' && date) {
+                  const day = String(date.getDate()).padStart(2, '0');
+                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                  const year = date.getFullYear();
+                  const formatted = `${day}-${month}-${year}`;
+
+                  setForm(prev => ({ ...prev, fecha_fin: formatted }));
+                  setSelectedDate(date);
+                }
+                setShowDatePicker(false);
+              }}
+            />
+          )}
+
+          <Text style={styles.label}>Selecciona jurado (máx. 3):</Text>
+          {profesores.map(prof => (
+            <TouchableOpacity
+              key={prof._id}
+              style={[
+                styles.juradoItem,
+                form.jurado.includes(prof._id) && styles.juradoItemSelected
+              ]}
+              onPress={() => toggleJurado(prof._id)}
+            >
+              <Text style={{ color: form.jurado.includes(prof._id) ? COLORS.white : COLORS.textPrimary }}>
+                {prof.nombre} {prof.apellido}
+              </Text>
+            </TouchableOpacity>
+          ))}
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: COLORS.primary }]}
+            onPress={handleCreate}
+          >
+            <Ionicons name="add-outline" size={20} color={COLORS.white} />
+            <Text style={styles.buttonText}>Guardar etapa</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Text style={styles.subtitle}>ETAPAS CREADAS</Text>
       {etapas.length === 0 && (
@@ -272,12 +320,14 @@ export default function EtapasScreen() {
               <Text style={styles.value}>{getNombresJurado(etapa.jurado)}</Text>
             </View>
 
-            <TouchableOpacity
-              onPress={() => handleDelete(etapa.etapa)}
-              style={{ padding: 4 }}
-            >
-              <Ionicons name="trash-outline" size={20} color={COLORS.error || 'red'} />
-            </TouchableOpacity>
+            {isAdmin && (
+              <TouchableOpacity
+                onPress={() => handleDelete(etapa.etapa)}
+                style={{ padding: 4 }}
+              >
+                <Ionicons name="trash-outline" size={20} color={COLORS.error || 'red'} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       ))}

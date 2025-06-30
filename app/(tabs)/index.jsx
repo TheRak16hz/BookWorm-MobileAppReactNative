@@ -117,8 +117,6 @@ export default function Profile() {
         <Text style={styles.infoLabel}>Email:</Text>
         <Text style={styles.infoValue}>{student.email}</Text>
 
-        <Text style={styles.infoLabel}>Sección:</Text>
-        <Text style={styles.infoValue}>{student.seccion}</Text>
 
         <Text style={styles.infoLabel}>Fecha de nacimiento:</Text>
         <Text style={styles.infoValue}>{new Date(student.fecha_nacimiento).toLocaleDateString()}</Text>
@@ -131,9 +129,6 @@ export default function Profile() {
 
         <Text style={styles.infoLabel}>Sexo:</Text>
         <Text style={styles.infoValue}>{student.sexo}</Text>
-
-        <Text style={styles.infoLabel}>Último año cursado:</Text>
-        <Text style={styles.infoValue}>{student.ultimo_año_cursado}</Text>
 
         <Text style={styles.infoLabel}>Status:</Text>
         <Text style={styles.infoValue}>{student.status ? "Activo" : "Inactivo"}</Text>

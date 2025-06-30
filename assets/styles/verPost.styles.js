@@ -1,61 +1,56 @@
-import { StyleSheet } from "react-native";
-import COLORS from "../../constants/colors";
+// assets/styles/verPost.styles.js
 
-const styles = StyleSheet.create({
+import { StyleSheet } from 'react-native';
+import COLORS from '../../constants/colors';
+
+export default StyleSheet.create({
   container: {
-    flex: 1,
+    padding: 16,
     backgroundColor: COLORS.background,
-    paddingHorizontal: 16,
-    paddingVertical: 24,
   },
   card: {
     backgroundColor: COLORS.cardBackground,
     borderRadius: 12,
+    marginBottom: 20,
     padding: 16,
-    marginBottom: 16,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
+    elevation: 2,
+    position: 'relative',
   },
-  image: {
-    width: "100%",
-    height: 200,
-    borderRadius: 12,
+  header: {
     marginBottom: 12,
   },
   title: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: 'bold',
     color: COLORS.textPrimary,
-    marginBottom: 4,
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 12,
   },
   description: {
     fontSize: 14,
+    color: COLORS.textDark,
+    marginBottom: 12,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  date: {
+    fontSize: 12,
     color: COLORS.textSecondary,
   },
-  noPostsText: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
-    textAlign: "center",
-    marginTop: 40,
+  actionIcons: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    flexDirection: 'row',
   },
-  header: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  scrollView: {
-    flexGrow: 1,
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  iconButton: {
+    padding: 4,
+    marginLeft: 8,
   },
 });
-
-export default styles;
