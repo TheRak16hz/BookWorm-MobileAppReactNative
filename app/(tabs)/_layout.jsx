@@ -9,7 +9,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown:false,
+        headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
         headerTitleStyle: {
           color: COLORS.textPrimary,
@@ -26,38 +26,36 @@ export default function TabLayout() {
           height: 60 + insets.bottom,
         },
       }}
-    > 
-        <Tabs.Screen
-          name='index'
-          options={{
-            title: 'profile',
-            tabBarIcon: ({color,size}) => (
-            <Ionicons name='person-outline' size={size} color={color}/>
-            ),
-          }}
-        
-        />
-        <Tabs.Screen
-          name='home'
-          options={{
-            title: 'home',
-            tabBarIcon: ({color,size}) => (
-            <Ionicons name='home-outline' size={size} color={color}/>
-            ),
-          }}
-        
-        />
-        <Tabs.Screen
-          name='create'
-          options={{
-            title: 'create',
-            tabBarIcon: ({color,size}) => (
-            <Ionicons name='add-circle-outline' size={size} color={color}/>
-            ),
-          }}
-        
-        />
-        
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="etapas" // cambiarás el archivo a 'etapas.jsx'
+        options={{
+          title: 'Etapas',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar-outline" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="posts" // cambiarás el archivo a 'posts.jsx'
+        options={{
+          title: 'Posts',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="document-text-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
-  )
+  );
 }

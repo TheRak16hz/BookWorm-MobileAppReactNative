@@ -35,7 +35,7 @@ export default function RootLayout() {
     } 
     else if (isSignedIn && inAuthScreen) {
       // Redirige según el role
-      if (user.role === "admin" || user.role === "profesor") {
+      if (user.role === "admin" || user.role === "profesor" || user.role === "secretaria") {
         router.replace("/(tabs-staff)");
       } else {
         router.replace("/(tabs)");

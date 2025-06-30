@@ -15,7 +15,8 @@ export default function ProfileHeader() {
   const email = user.email || user.correo || "Sin correo";
 
   // Detectar rol
-  const isStaff = user.role === "admin" || user.role === "profesor";
+  const isStaff = user.role === "admin" || user.role === "profesor" || user.role === "secretaria";
+
   const roleLabel = isStaff ? `Staff (${user.role})` : "Estudiante";
 
   // Imagen de perfil predeterminada

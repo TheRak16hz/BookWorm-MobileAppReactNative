@@ -123,6 +123,35 @@ const styles = StyleSheet.create({
   footerLoader: {
     marginVertical: 20,
   },
+
+
+
+  headerTitle: {
+  fontSize: 22,
+  fontWeight: 'bold',
+  color: COLORS.primary,
+  marginBottom: 4,
+  textAlign: 'center',
+},
+headerSubtitle: {
+  fontSize: 14,
+  color: COLORS.textSecondary,
+  textAlign: 'center',
+  marginBottom: 16,
+},
+caption: {
+  fontSize: 14,
+  color: COLORS.textDark,
+  marginBottom: 4,
+  lineHeight: 20,
+},
+bookTitle: {
+  fontSize: 18,
+  fontWeight: "700",
+  color: COLORS.textPrimary,
+  marginBottom: 8,
+},
+
 });
 
 export default styles;
