@@ -37,8 +37,8 @@ export default function Signup() {
         <View style={styles.card}>
           {/*header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Bookworm Store</Text>
-            <Text style={styles.subtitle}>Make your style shine</Text>
+            <Text style={styles.title}>Acade-MyFlow 📝</Text>
+            <Text style={styles.subtitle}>Be up to date everywhere</Text>
           </View>
 
           <View style={styles.formContainer}>

@@ -30,8 +30,13 @@ export default function Login() {
         {/* Illustration */}
         <View style={styles.topIllustration}>
           <Image
-            source={require("../../assets/images/ilustration1.png")}
-            style={[styles.illustrationImage, { height: 250 }]}  // <== reducimos el tamaño
+            source={require("../../assets/images/login.png")}
+            style={[styles.illustrationImage, {
+            height: 250, // Reducido un poco más, puedes ajustarlo
+            width: '80%', // Puedes usar un porcentaje para el ancho, o un valor fijo
+            marginBottom: 30,
+            marginTop: -20 // Aquí agregamos el margen inferior
+          },]}  // <== reducimos el tamaño
             resizeMode="contain"
           />
         </View>

@@ -27,8 +27,11 @@ export default function StaffLogin() {
       <View style={styles.container}>
         <View style={styles.topIllustration}>
           <Image
-            source={require("../../assets/images/ilustration1.png")}
-            style={styles.illustrationImage}
+            source={require("../../assets/images/staff-login.png")}
+            style={[styles.illustrationImage, {
+            marginBottom: 10,
+            marginTop: -20 // Aquí agregamos el margen inferior
+          },]}
             resizeMode="contain"
           />
         </View>
